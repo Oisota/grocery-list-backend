@@ -1,3 +1,5 @@
+*.db
+*.log
 *.egg-info
 *.pyc
 venv
