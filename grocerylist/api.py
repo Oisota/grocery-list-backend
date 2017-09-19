@@ -36,6 +36,7 @@ def grocery_list_item(item_id):
         return jsonify(item)
     elif request.method == 'PUT':
         data = {
+                'id': request.json['id'],
                 'name': request.json['name'],
                 'checked': request.json['checked'],
                 'dollars': request.json['dollars'],
