@@ -1,19 +1,17 @@
-from flask import jsonify, request, abort
+from flask import Blueprint, jsonify, request, abort
 from flask.views import MethodView
 
-from . import app
-from .database import query_db, get_db
+from ..database import query_db, get_db
 
-@app.route('/')
-def index():
-    return jsonify({'message': 'Welcome to the Grocery List API'})
+api_blueprint = Blueprint('grocerylist', __name__, url_prefix='/grocery-list')
 
-@app.route('/grocery-list/', methods=['GET', 'POST'] )
-def grocery_list():
-    if request.method == 'GET':
+class GroceryList(MethodView):
+
+    def get(self):
         items = query_db('SELECT * FROM item')
         return jsonify(items)
-    elif request.method == 'POST':
+
+    def post(self):
         data = {
                 'name': request.json['name'],
                 'checked': request.json['checked'],
@@ -27,14 +25,16 @@ def grocery_list():
         item = query_db('SELECT * FROM item WHERE rowid = ?', (cur.lastrowid,), True)
         return jsonify(item)
 
-@app.route('/grocery-list/<item_id>', methods=['GET', 'PUT', 'DELETE'] )
-def grocery_list_item(item_id):
-    if request.method == 'GET':
+
+class GroceryListItem(MethodView):
+
+    def get(self, item_id):
         item = query_db('SELECT * FROM item WHERE id = ?;', (item_id,), True)
         if item is None:
             return jsonify({'message': 'Not Found'}), 404
         return jsonify(item)
-    elif request.method == 'PUT':
+
+    def put(self, item_id):
         data = {
                 'id': request.json['id'],
                 'name': request.json['name'],
@@ -52,9 +52,13 @@ def grocery_list_item(item_id):
         con.commit()
         item = query_db('select * from item where id = ?;', (item_id,), True)
         return jsonify(item)
-    elif request.method == 'DELETE':
+
+    def delete(self, item_id):
         con = get_db()
         cur = con.cursor()
         cur.execute('DELETE FROM item WHERE id = ?', (item_id,))
         con.commit()
         return '', 200
+
+api_blueprint.add_url_rule('/', view_func=GroceryList.as_view('grocerylist'))
+api_blueprint.add_url_rule('/<item_id>', view_func=GroceryListItem.as_view('grocerylistitem'))
