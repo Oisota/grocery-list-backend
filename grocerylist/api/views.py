@@ -6,7 +6,7 @@ from ..database import query_db, get_db
 from ..user import User
 from .. import jws
 
-api_blueprint = Blueprint('grocerylist', __name__, url_prefix='/grocery-list')
+api_blueprint = Blueprint('grocerylist', __name__, url_prefix='/api')
 
 @api_blueprint.route('/login', methods=['POST'])
 def login():
@@ -87,5 +87,5 @@ class GroceryListItem(MethodView):
         con.commit()
         return '', 200
 
-api_blueprint.add_url_rule('/', view_func=GroceryList.as_view('grocerylist'))
-api_blueprint.add_url_rule('/<item_id>', view_func=GroceryListItem.as_view('grocerylistitem'))
+api_blueprint.add_url_rule('/grocery-list/', view_func=GroceryList.as_view('grocerylist'))
+api_blueprint.add_url_rule('/grocery-list/<item_id>', view_func=GroceryListItem.as_view('grocerylistitem'))
