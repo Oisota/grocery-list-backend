@@ -6,3 +6,9 @@ create table item (
 	dollars integer,
 	cents integer
 );
+
+create table user (
+	id integer primary key autoincrement,
+	email text not null,
+	hash text not null
+);

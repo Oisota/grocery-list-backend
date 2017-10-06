@@ -1,11 +1,28 @@
 from flask import Blueprint, jsonify, request, abort
 from flask.views import MethodView
+from flask_login import login_required
 
 from ..database import query_db, get_db
+from ..user import User
+from .. import jws
 
 api_blueprint = Blueprint('grocerylist', __name__, url_prefix='/grocery-list')
 
+@api_blueprint.route('/login', methods=['POST'])
+def login():
+    email = request.json['email']
+    pwd = request.json['pwd']
+
+    user = User.validate(email, pwd)
+    if user is None:
+        abort(404)
+
+    token = jws.dumps({'id': user.id_})
+    return jsonify({'token': token.decode()})
+
 class GroceryList(MethodView):
+
+    decorators = [login_required]
 
     def get(self):
         items = query_db('SELECT * FROM item')
@@ -27,6 +44,8 @@ class GroceryList(MethodView):
 
 
 class GroceryListItem(MethodView):
+
+    decorators = [login_required]
 
     def get(self, item_id):
         item = query_db('SELECT * FROM item WHERE id = ?;', (item_id,), True)
