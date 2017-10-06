@@ -20,6 +20,14 @@ def login():
     token = jws.dumps({'id': user.id_})
     return jsonify({'token': token.decode()})
 
+@api_blueprint.route('/register', methods=['POST'])
+def register():
+    email = request.json['email']
+    pwd = request.json['pwd']
+    User.register(email, pwd)
+    return '', 201
+
+
 class GroceryList(MethodView):
 
     decorators = [login_required]
