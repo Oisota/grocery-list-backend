@@ -5,10 +5,12 @@ from flask_login import login_required
 from ..database import query_db, get_db
 from ..user import User
 from .. import jws
+from .decorators import jsonified
 
 api_blueprint = Blueprint('grocerylist', __name__, url_prefix='/api')
 
 @api_blueprint.route('/login', methods=['POST'])
+@jsonified
 def login():
     email = request.json['email']
     pwd = request.json['pwd']
@@ -18,7 +20,7 @@ def login():
         abort(404)
 
     token = jws.dumps({'id': user.id_})
-    return jsonify({'token': token.decode()})
+    return dict(token=token.decode())
 
 @api_blueprint.route('/register', methods=['POST'])
 def register():
@@ -30,11 +32,11 @@ def register():
 
 class GroceryList(MethodView):
 
-    decorators = [login_required]
+    decorators = [login_required, jsonified]
 
     def get(self):
         items = query_db('SELECT * FROM item')
-        return jsonify(items)
+        return items
 
     def post(self):
         data = {
@@ -48,18 +50,18 @@ class GroceryList(MethodView):
         cur.execute('INSERT INTO item (name, dollars, cents, checked) VALUES (:name, :dollars, :cents, :checked)', data)
         con.commit()
         item = query_db('SELECT * FROM item WHERE rowid = ?', (cur.lastrowid,), True)
-        return jsonify(item)
+        return item
 
 
 class GroceryListItem(MethodView):
 
-    decorators = [login_required]
+    decorators = [login_required, jsonified]
 
     def get(self, item_id):
         item = query_db('SELECT * FROM item WHERE id = ?;', (item_id,), True)
         if item is None:
             return jsonify({'message': 'Not Found'}), 404
-        return jsonify(item)
+        return item
 
     def put(self, item_id):
         data = {
@@ -78,7 +80,7 @@ class GroceryListItem(MethodView):
                 WHERE id = :id;""", data)
         con.commit()
         item = query_db('select * from item where id = ?;', (item_id,), True)
-        return jsonify(item)
+        return item
 
     def delete(self, item_id):
         con = get_db()
