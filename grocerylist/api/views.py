@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, abort
 from flask.views import MethodView
 from flask_login import login_required
+from flask_cors import CORS, cross_origin
 
 from ..database import query_db, get_db
 from ..user import User
@@ -8,12 +9,14 @@ from .. import jws
 from .decorators import jsonified
 
 api_blueprint = Blueprint('grocerylist', __name__, url_prefix='/api')
+CORS(api_blueprint)
 
 @api_blueprint.route('/login', methods=['POST'])
+@cross_origin(supports_credentials=True)
 @jsonified
 def login():
     email = request.json['email']
-    pwd = request.json['pwd']
+    pwd = request.json['password']
 
     user = User.validate(email, pwd)
     if user is None:
