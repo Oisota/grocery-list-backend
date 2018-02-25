@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
-from itsdangerous import JSONWebSignatureSerializer
+from itsdangerous import JSONWebSignatureSerializer, BadSignature
 
 
 app = Flask(__name__)
@@ -30,5 +30,6 @@ def load_user_from_request(request):
     return User.get(int(data['id']))
 
 from .api import api_blueprint
+from . import errors
 
 app.register_blueprint(api_blueprint)
