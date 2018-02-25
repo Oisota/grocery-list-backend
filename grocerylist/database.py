@@ -1,4 +1,5 @@
 import sqlite3 as sql
+from contextlib import contextmanager
 
 from flask import g
 
@@ -44,3 +45,10 @@ def query_db(query, args=(), one=False):
         res = cur.fetchall()
     cur.close()
     return res if res else None
+
+@contextmanager
+def db_commit():
+    """get a db cursor that is auto committed"""
+    con = get_db()
+    yield con.cursor()
+    con.commit()
