@@ -83,5 +83,5 @@ class GroceryListItem(MethodView):
             cur.execute('DELETE FROM item WHERE id = ?;', (item_id,))
         return '', 200
 
-api_blueprint.add_url_rule('/grocery-list/', view_func=GroceryList.as_view('grocerylist'))
-api_blueprint.add_url_rule('/grocery-list/<item_id>', view_func=GroceryListItem.as_view('grocerylistitem'))
+api_blueprint.add_url_rule('/groceries/', view_func=GroceryList.as_view('grocerylist'))
+api_blueprint.add_url_rule('/groceries/<item_id>', view_func=GroceryListItem.as_view('grocerylistitem'))
