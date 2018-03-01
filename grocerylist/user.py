@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from passlib.hash import bcrypt
 
-from .database import query_db, get_db
+from .database import query_db, get_db, db_commit
 
 class User(UserMixin):
 
@@ -11,14 +11,24 @@ class User(UserMixin):
         
     @classmethod
     def get(cls, user_id):
-        user = query_db('SELECT * FROM user WHERE id = ?;', (user_id,), True)
+        q = '''
+        SELECT *
+        FROM user
+        WHERE id = ?;
+        '''
+        user = query_db(q, (user_id,), True)
         if user is None:
             return None
         return cls(**user)
 
     @classmethod
     def validate(cls, email, pwd):
-        user = query_db('SELECT * FROM user WHERE email = ?;', (email,), True)
+        q = '''
+        SELECT *
+        FROM user
+        WHERE email = ?;
+        '''
+        user = query_db(q, (email,), True)
         if user is None:
             return None
 
@@ -30,7 +40,9 @@ class User(UserMixin):
     @classmethod
     def register(cls, email, pwd):
         hash_ = bcrypt.hash(pwd)
-        db = get_db()
-        cur = db.cursor()
-        cur.execute('INSERT INTO user (email, hash) VALUES (?, ?);', (email, hash_))
-        db.commit()
+        q = '''
+        INSERT INTO user (email, hash)
+        VALUES (?, ?);
+        '''
+        with db_commit() as cur:
+            cur.execute(q, (email, hash_))
