@@ -12,10 +12,6 @@ UWSGI_CONFIG="/opt/apps/$APP/config/uwsgi.ini"
 UWSGI_APPS_AVAILABLE="/etc/uwsgi/apps-available"
 UWSGI_APPS_ENABLED="/etc/uwsgi/apps-enabled"
 
-NGINX_CONFIG="/opt/apps/$APP/config/nginx.conf"
-NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
-NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
-
 while read oldrev newrev ref
 do
 	# only checking out the master (or whatever branch you would like to deploy)
@@ -24,12 +20,9 @@ do
 		git --work-tree="$APP_DIR" --git-dir="$GIT_DIR" checkout -f
 
 		# link uwsgi config
+		echo "Updating uWSGI config..."
 		cp $UWSGI_CONFIG "$UWSGI_APPS_AVAILABLE/$APP.ini"
 		ln -sf "$UWSGI_APPS_AVAILABLE/$APP.ini" "$UWSGI_APPS_ENABLED/$APP.ini"
-
-		# link nginx config
-		cp $NGINX_CONFIG "$NGINX_SITES_AVAILABLE/$APP"
-		ln -sf "$NGINX_SITES_AVAILABLE/$APP" "$NGINX_SITES_ENABLED/$APP"
 	else
 		echo "Ref $ref successfully received. Doing nothing: only the master branch may be deployed on this server."
 	fi
