@@ -18,9 +18,18 @@ login_manager.init_app(app)
 
 @login_manager.request_loader
 def load_user_from_request(request):
-    token = request.headers.get('x-access-token')
-    if token is None:
+	"""Load user by parsing bearer token"""
+    header = request.headers.get('Authorization')
+    if header is None:
         return None
+
+	try:
+		type_, token = header.split(' ')
+	except ValueError:
+		return None
+
+	if type_.lower() != 'bearer' or not token:
+		return None
 
     try:
         data = jws.loads(token)
