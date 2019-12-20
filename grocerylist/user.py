@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from passlib.hash import bcrypt
 
-from .database import query_db, get_db, db_commit
+from .database import query_db, db_commit
 
 class User(UserMixin):
 
