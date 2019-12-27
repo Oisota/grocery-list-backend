@@ -1,16 +1,18 @@
-from flask import jsonify, request, abort
+from flask import jsonify, request, g
 from flask.views import MethodView
 from flask_login import login_required
 from werkzeug.exceptions import NotFound
 
+from . import schemas
 from .. import database as db
 from ..user import User
 from ..util import jws
-from .decorators import jsonified
+from .decorators import jsonified, schema
 
+@schema(schemas.UserCreds())
 @jsonified
 def login():
-    data = request.get_json()
+    data = g.request_data
     email = data['email']
     pwd = data['password']
 
@@ -21,8 +23,9 @@ def login():
     token = jws.dumps({'id': user.id_})
     return dict(token=token.decode())
 
+@schema(schemas.UserCreds())
 def register():
-    data = request.get_json()
+    data = g.request_data
     email = data['email']
     pwd = data['password']
     User.register(email, pwd)
@@ -46,8 +49,9 @@ class Groceries(MethodView):
         items = db.query(q)
         return items
 
+    @schema(schemas.GroceryItem())
     def post(self):
-        data = request.get_json()
+        data = g.request_data
         q = """
         INSERT INTO item (name, dollars, cents, checked)
         VALUES (:name, :dollars, :cents, :checked);
@@ -63,8 +67,9 @@ class GroceryItem(MethodView):
 
     decorators = [login_required, jsonified]
 
+    @schema(schemas.GroceryItem())
     def put(self, item_id):
-        data = request.get_json()
+        data = g.request_data
         q = """
         UPDATE item
         SET name = :name, checked = :checked, dollars = :dollars, cents = :cents
