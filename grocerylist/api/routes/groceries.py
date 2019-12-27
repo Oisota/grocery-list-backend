@@ -1,36 +1,10 @@
-from flask import request, g
+from flask import g
 from flask.views import MethodView
 from flask_login import login_required
-from werkzeug.exceptions import NotFound
 
-from . import schemas
-from .. import database as db
-from ..user import User
-from ..util import jws
-from .decorators import jsonified, schema
-
-@schema(schemas.UserCreds())
-@jsonified
-def login():
-    data = g.request_data
-    email = data['email']
-    pwd = data['password']
-
-    user = User.validate(email, pwd)
-    if user is None:
-        raise NotFound('Invalid Credentials')
-
-    token = jws.dumps({'id': user.id_})
-    return dict(token=token.decode())
-
-@schema(schemas.UserCreds())
-def register():
-    data = g.request_data
-    email = data['email']
-    pwd = data['password']
-    User.register(email, pwd)
-    return '', 201
-
+from .. import schemas
+from ... import database as db
+from ..decorators import jsonified, schema
 
 class Groceries(MethodView):
 
