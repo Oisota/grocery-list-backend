@@ -1,4 +1,4 @@
-from flask import jsonify, request, g
+from flask import request, g
 from flask.views import MethodView
 from flask_login import login_required
 from werkzeug.exceptions import NotFound
