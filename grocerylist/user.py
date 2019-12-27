@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from passlib.hash import bcrypt
 
-from .database import query_db, db_commit
+from . import database as db
 
 class User(UserMixin):
 
@@ -16,7 +16,7 @@ class User(UserMixin):
         FROM user
         WHERE id = ?;
         '''
-        user = query_db(q, (user_id,), True)
+        user = db.query(q, (user_id,), True)
         if user is None:
             return None
         return cls(**user)
@@ -28,7 +28,7 @@ class User(UserMixin):
         FROM user
         WHERE email = ?;
         '''
-        user = query_db(q, (email,), True)
+        user = db.query(q, (email,), True)
         if user is None:
             return None
 
@@ -44,5 +44,5 @@ class User(UserMixin):
         INSERT INTO user (email, hash)
         VALUES (?, ?);
         '''
-        with db_commit() as cur:
+        with db.commit() as cur:
             cur.execute(q, (email, hash_))

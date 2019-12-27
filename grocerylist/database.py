@@ -1,9 +1,7 @@
 import sqlite3 as sql
 from contextlib import contextmanager
 
-from flask import g
-
-from . import app
+from flask import g, current_app as app
 
 def dict_factory(cursor, row):
     """Convert db row into dict"""
@@ -15,40 +13,39 @@ def dict_factory(cursor, row):
 def init_db():
     """Create empty database tables"""
     with app.app_context():
-        db = get_db()
+        db = connect()
         with app.open_resource(app.config['SCHEMA'], mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
-def get_db():
+def connect():
     """Set the _db attribute on the flask global object"""
     db = getattr(g, '_db', None)
     if db is None:
-        db = g._db = sql.connect(app.config['DB'])
+        db = g._db = sql.connect(app.config['DB_FILE'])
         db.row_factory = dict_factory
     return db
 
-@app.teardown_appcontext
-def close_db(exception):
+def close_connection(exception):
     """Close the db connection when the request is done"""
     db = getattr(g, '_db', None)
     if db is not None:
         db.close()
 
-def query_db(query, args=(), one=False):
+def query(query, args=(), one=False):
     """Execute db queries"""
-    cur = get_db().cursor()
+    cur = connect().cursor()
     cur.execute(query, args)
     if one:
         res = cur.fetchone()
     else:
         res = cur.fetchall()
     cur.close()
-    return res if res else None
+    return res
 
 @contextmanager
-def db_commit():
+def commit():
     """get a db cursor that is auto committed"""
-    con = get_db()
+    con = connect()
     yield con.cursor()
     con.commit()

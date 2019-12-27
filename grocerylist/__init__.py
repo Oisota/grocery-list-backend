@@ -1,44 +1,51 @@
-from flask import Flask
-from flask_login import LoginManager
-from itsdangerous import JSONWebSignatureSerializer, BadSignature
+from flask import Flask, request
+from itsdangerous import BadSignature
 
-
-app = Flask(__name__)
-
-from . import config
-app.config.from_object(config)
-
-from .user import User
-
-jws = JSONWebSignatureSerializer(app.config['SECRET_KEY'])
-
-# Configure flask login
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-@login_manager.request_loader
-def load_user_from_request(request):
-	"""Load user by parsing bearer token"""
-    header = request.headers.get('Authorization')
-    if header is None:
-        return None
-
-	try:
-		type_, token = header.split(' ')
-	except ValueError:
-		return None
-
-	if type_.lower() != 'bearer' or not token:
-		return None
-
-    try:
-        data = jws.loads(token)
-    except BadSignature as e:
-        return None
-
-    return User.get(int(data['id']))
-
+from .ext import login_manager
 from .api import api_blueprint
-from . import errors
+from .user import User
+from .util import jws, CustomSessionInterface
+from .errors import register_error_handlers
 
-app.register_blueprint(api_blueprint)
+def create_app(config):
+    app = Flask(__name__)
+
+    app.config.from_mapping(config)
+
+    # Configure flask login
+    login_manager.init_app(app)
+
+    # disable cookie sessions
+    app.session_interface = CustomSessionInterface()
+
+    @app.before_request
+    def test():
+        print(request.url)
+
+    @login_manager.request_loader
+    def load_user_from_request(request):
+        """Load user by parsing bearer token"""
+        header = request.headers.get('Authorization')
+        if header is None:
+            return None
+
+        try:
+            type_, token = header.split(' ')
+        except ValueError:
+            return None
+
+        if type_.lower() != 'bearer' or not token:
+            return None
+
+        try:
+            data = jws.loads(token)
+        except BadSignature as e:
+            return None
+
+        return User.get(int(data['id']))
+
+    register_error_handlers(app)
+
+    app.register_blueprint(api_blueprint)
+
+    return app

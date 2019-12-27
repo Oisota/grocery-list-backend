@@ -1,1 +1,1 @@
-from .views import api_blueprint
+from .routes import bp as api_blueprint
