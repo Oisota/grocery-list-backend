@@ -5,37 +5,20 @@ from flask_login import login_required
 from .. import schemas
 from ... import database as db
 from ..decorators import jsonified, schema
+from ..services.grocery import GroceryService
 
 class Groceries(MethodView):
 
     decorators = [login_required, jsonified]
 
     def get(self):
-        q = """
-        SELECT
-            id,
-            name,
-            dollars,
-            cents,
-            checked
-        FROM item;
-        """
-        items = db.query(q)
-        return items
+        return GroceryService.all()
 
     @schema(schemas.GroceryItem())
     def post(self):
         data = g.request_data
-        q = """
-        INSERT INTO item (name, dollars, cents, checked)
-        VALUES (:name, :dollars, :cents, :checked);
-        """
-        with db.commit() as cur:
-            cur.execute(q, data)
-            last_row_id = cur.lastrowid
-        item = db.query('SELECT * FROM item WHERE rowid = ?;', (last_row_id,), True)
+        item = GroceryService.create(data)
         return item
-
 
 class GroceryItem(MethodView):
 
@@ -44,18 +27,10 @@ class GroceryItem(MethodView):
     @schema(schemas.GroceryItem())
     def put(self, item_id):
         data = g.request_data
-        q = """
-        UPDATE item
-        SET name = :name, checked = :checked, dollars = :dollars, cents = :cents
-        WHERE id = :id;
-        """
-        data['id'] = item_id
-        with db.commit() as cur:
-            cur.execute(q, data)
-        item = db.query('SELECT * FROM item WHERE id = ?;', (item_id,), True)
+        data['item_id'] = item_id
+        item = GroceryService.update(data)
         return item
 
     def delete(self, item_id):
-        with db.commit() as cur:
-            cur.execute('DELETE FROM item WHERE id = ?;', (item_id,))
+        GroceryService.delete({'item_id': item_id})
         return '', 200
