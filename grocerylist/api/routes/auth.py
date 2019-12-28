@@ -3,7 +3,7 @@ from werkzeug.exceptions import NotFound
 
 from ..decorators import jsonified, schema
 from ...util import jws
-from ...user import User
+from ..services.user import User
 from .. import schemas
 
 @schema(schemas.UserCreds())

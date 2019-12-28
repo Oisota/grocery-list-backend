@@ -3,7 +3,7 @@
 from flask_login import LoginManager
 
 from .util import jws
-from .user import User
+from .api.services.user import User
 
 login_manager = LoginManager()
 
@@ -27,7 +27,7 @@ def load_user_from_request(request):
     except BadSignature as e:
         return None
 
-    return User.get(int(data['id']))
+    return User.by_id(int(data['id']))
 
 def init_extensions(app):
     """initialize extensions on app"""

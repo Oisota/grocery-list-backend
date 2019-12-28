@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from passlib.hash import bcrypt
 
-from . import database as db
+from ... import database as db
 
 class User(UserMixin):
 
@@ -10,7 +10,8 @@ class User(UserMixin):
         self.id_ = kwargs['id']
         
     @classmethod
-    def get(cls, user_id):
+    def by_id(cls, user_id):
+        """Load user by id"""
         q = '''
         SELECT *
         FROM user
@@ -23,6 +24,7 @@ class User(UserMixin):
 
     @classmethod
     def validate(cls, email, pwd):
+        """Validate email and password"""
         q = '''
         SELECT *
         FROM user
@@ -39,6 +41,7 @@ class User(UserMixin):
 
     @classmethod
     def register(cls, email, pwd):
+        """rEgister a new user"""
         hash_ = bcrypt.hash(pwd)
         q = '''
         INSERT INTO user (email, hash)
