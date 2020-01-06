@@ -20,3 +20,9 @@ test:
 .PHONY: lint
 lint:
 	pylint $(APP_PACKAGE)
+
+.PHONY: shell
+shell:
+	export FLASK_APP=grocerylist.wsgi && \
+	export APP_CONFIG='./data/config-dev.toml' && \
+	flask shell
