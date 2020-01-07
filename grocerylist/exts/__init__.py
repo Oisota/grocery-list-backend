@@ -3,6 +3,7 @@ from grocerylist.exts.sqla import db
 from grocerylist.exts.marshmallow import ma
 from grocerylist.exts.login import login_manager
 from grocerylist.exts.disable_cookie_session import no_cookie_sessions
+from grocerylist.exts.admin import admin
 
 def init_extensions(app):
     """initialize extensions on app"""
@@ -10,3 +11,4 @@ def init_extensions(app):
     ma.init_app(app)
     db.init_app(app)
     no_cookie_sessions.init_app(app)
+    admin.init_app(app)
