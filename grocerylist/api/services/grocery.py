@@ -1,6 +1,7 @@
 """Grocery Service Module"""
 
-from ... import database as db
+from grocerylist.exts.sqla import db
+from grocerylist.api.models.groceries import GroceryItem
 
 class GroceryService:
     """Grocery list CRUD operations"""
@@ -8,43 +9,28 @@ class GroceryService:
     @staticmethod
     def all():
         """Return all items"""
-        q = """
-        SELECT
-            id,
-            name,
-            dollars,
-            cents,
-            checked
-        FROM item;
-        """
-        items = db.query(q)
-        return items
+        return GroceryItem.query.all()
 
     @staticmethod
     def create(data):
-        q = """
-        INSERT INTO item (name, dollars, cents, checked)
-        VALUES (:name, :dollars, :cents, :checked);
-        """
-        with db.commit() as cur:
-            cur.execute(q, data)
-            last_row_id = cur.lastrowid
-        item = db.query('SELECT * FROM item WHERE rowid = ?;', (last_row_id,), True)
+        """Create a new item"""
+        item = GroceryItem(**data)
+        db.session.add(item)
+        db.session.commit()
         return item
 
     @staticmethod
     def update(data):
-        q = """
-        UPDATE item
-        SET name = :name, checked = :checked, dollars = :dollars, cents = :cents
-        WHERE id = :item_id;
-        """
-        with db.commit() as cur:
-            cur.execute(q, data)
-        item = db.query('SELECT * FROM item WHERE id = :item_id;', data, True)
+        """Update existing item"""
+        item = GroceryItem.query.get(data['id'])
+        for k, v in data.items():
+            setattr(item, k, v)
+        db.session.commit()
         return item
 
     @staticmethod
     def delete(data):
-        with db.commit() as cur:
-            cur.execute('DELETE FROM item WHERE id = :item_id;', data)
+        """Delete existing item"""
+        item = GroceryItem(**data)
+        db.session.delete(item)
+        db.session.commit()

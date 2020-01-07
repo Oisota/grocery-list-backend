@@ -1,51 +1,33 @@
 from flask_login import UserMixin
 from passlib.hash import bcrypt
 
-from ... import database as db
+from grocerylist.exts.sqla import db
+from grocerylist.api.models.user import User
 
-class User(UserMixin):
-
-    def __init__(self, *args, **kwargs):
-        self.email = kwargs['email']
-        self.id_ = kwargs['id']
+class UserService():
         
-    @classmethod
-    def by_id(cls, user_id):
+    @staticmethod
+    def get_by_id(user_id):
         """Load user by id"""
-        q = '''
-        SELECT *
-        FROM user
-        WHERE id = ?;
-        '''
-        user = db.query(q, (user_id,), True)
-        if user is None:
-            return None
-        return cls(**user)
+        user = User.query.get(user_id)
+        return user
 
-    @classmethod
-    def validate(cls, email, pwd):
+    @staticmethod
+    def validate(email, pwd):
         """Validate email and password"""
-        q = '''
-        SELECT *
-        FROM user
-        WHERE email = ?;
-        '''
-        user = db.query(q, (email,), True)
+        user = User.query.filter_by(email=email).first()
         if user is None:
             return None
 
-        if bcrypt.verify(pwd, user['hash']):
-            return cls(**user)
+        if bcrypt.verify(pwd, user.hash):
+            return user
 
         return None
 
-    @classmethod
-    def register(cls, email, pwd):
-        """rEgister a new user"""
+    @staticmethod
+    def register(email, pwd):
+        """Register a new user"""
         hash_ = bcrypt.hash(pwd)
-        q = '''
-        INSERT INTO user (email, hash)
-        VALUES (?, ?);
-        '''
-        with db.commit() as cur:
-            cur.execute(q, (email, hash_))
+        user = User(email=email, hash=hash_)
+        db.session.add(user)
+        db.session.commit()

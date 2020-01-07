@@ -2,34 +2,35 @@ from flask import g
 from flask.views import MethodView
 from flask_login import login_required
 
-from .. import schemas
-from ... import database as db
-from ..decorators import jsonified, schema
-from ..services.grocery import GroceryService
+from grocerylist.api import validators
+from grocerylist.api.decorators import jsonified, schema
+from grocerylist.api.services.grocery import GroceryService
+from grocerylist.api.schemas.grocery import grocery_item_schema, grocery_items_schema
 
 class Groceries(MethodView):
 
     decorators = [login_required, jsonified]
 
     def get(self):
-        return GroceryService.all()
+        items = GroceryService.all()
+        return grocery_items_schema.dump(items)
 
-    @schema(schemas.GroceryItem())
+    @schema(validators.GroceryItem())
     def post(self):
         data = g.request_data
         item = GroceryService.create(data)
-        return item
+        return grocery_item_schema.dump(item)
 
 class GroceryItem(MethodView):
 
     decorators = [login_required, jsonified]
 
-    @schema(schemas.GroceryItem())
+    @schema(validators.GroceryItem())
     def put(self, item_id):
         data = g.request_data
-        data['item_id'] = item_id
+        data['id'] = item_id
         item = GroceryService.update(data)
-        return item
+        return grocery_item_schema.dump(item)
 
     def delete(self, item_id):
         GroceryService.delete({'item_id': item_id})

@@ -1,9 +1,8 @@
-"""setup flask extensions"""
-
+"""Flask Login Init"""
 from flask_login import LoginManager
 
-from .util import jws
-from .api.services.user import User
+from grocerylist.util import jws
+from grocerylist.api.services.user import UserService
 
 login_manager = LoginManager()
 
@@ -27,8 +26,4 @@ def load_user_from_request(request):
     except BadSignature as e:
         return None
 
-    return User.by_id(int(data['id']))
-
-def init_extensions(app):
-    """initialize extensions on app"""
-    login_manager.init_app(app)
+    return UserService.get_by_id(int(data['id']))
