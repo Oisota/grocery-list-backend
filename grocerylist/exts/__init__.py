@@ -6,6 +6,7 @@ from grocerylist.exts.disable_cookie_session import no_cookie_sessions
 from grocerylist.exts.admin import admin
 from grocerylist.exts.migrate import migrate
 from grocerylist.exts.limiter import limiter
+from grocerylist.exts.cache import cache
 
 def init_extensions(app):
     """initialize extensions on app"""
@@ -16,3 +17,4 @@ def init_extensions(app):
     admin.init_app(app)
     migrate.init_app(app, db)
     limiter.init_app(app)
+    cache.init_app(app)

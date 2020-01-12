@@ -4,6 +4,7 @@ cffi==1.13.2
 Click==7.0
 Flask==1.1.1
 Flask-Admin==1.5.4
+Flask-Caching==1.8.0
 Flask-Limiter==1.1.0
 Flask-Login==0.4.1
 flask-marshmallow==0.10.1
