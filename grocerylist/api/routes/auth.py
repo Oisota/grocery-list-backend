@@ -3,7 +3,7 @@ from werkzeug.exceptions import NotFound
 
 from grocerylist.api.decorators import jsonified, schema
 from grocerylist.util import jws
-from grocerylist.api.services.user import UserService
+from grocerylist.services.user import UserService
 from grocerylist.api import validators
 
 @schema(validators.UserCreds())

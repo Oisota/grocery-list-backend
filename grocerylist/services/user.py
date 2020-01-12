@@ -2,7 +2,7 @@ from flask_login import UserMixin
 from passlib.hash import bcrypt
 
 from grocerylist.exts.sqla import db
-from grocerylist.api.models.user import User
+from grocerylist.models.user import User
 
 class UserService():
         

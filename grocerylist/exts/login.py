@@ -2,7 +2,7 @@
 from flask_login import LoginManager
 
 from grocerylist.util import jws
-from grocerylist.api.services.user import UserService
+from grocerylist.services.user import UserService
 
 login_manager = LoginManager()
 

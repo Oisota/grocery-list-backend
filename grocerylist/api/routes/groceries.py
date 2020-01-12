@@ -4,7 +4,7 @@ from flask_login import login_required
 
 from grocerylist.api import validators
 from grocerylist.api.decorators import jsonified, schema
-from grocerylist.api.services.grocery import GroceryService
+from grocerylist.services.grocery import GroceryService
 from grocerylist.api.schemas.grocery import grocery_item_schema, grocery_items_schema
 
 class Groceries(MethodView):

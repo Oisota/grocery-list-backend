@@ -1,7 +1,7 @@
 """Grocery Service Module"""
 
 from grocerylist.exts.sqla import db
-from grocerylist.api.models.groceries import GroceryItem
+from grocerylist.models.groceries import GroceryItem
 
 class GroceryService:
     """Grocery list CRUD operations"""
