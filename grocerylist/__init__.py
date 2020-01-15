@@ -1,7 +1,7 @@
 from flask import Flask
 
 from grocerylist.exts import init_extensions
-from grocerylist.api import api_blueprint
+from grocerylist.api import register_blueprints
 from grocerylist.errors import register_error_handlers
 
 def create_app(config):
@@ -13,6 +13,6 @@ def create_app(config):
 
     register_error_handlers(app)
 
-    app.register_blueprint(api_blueprint)
+    register_blueprints(app)
 
     return app
