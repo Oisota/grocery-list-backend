@@ -2,7 +2,7 @@ from flask import g
 from flask.views import MethodView
 from flask_login import login_required
 
-from grocerylist.api import validators
+from grocerylist.validators.grocery import GroceryItemValidator
 from grocerylist.api.decorators import jsonified, schema
 from grocerylist.services.grocery import GroceryService
 from grocerylist.serializers.grocery import grocery_item_serializer, grocery_items_serializer
@@ -15,7 +15,7 @@ class Groceries(MethodView):
         items = GroceryService.all()
         return grocery_items_serializer.dump(items)
 
-    @schema(validators.GroceryItem())
+    @schema(GroceryItemValidator())
     def post(self):
         data = g.request_data
         item = GroceryService.create(data)
@@ -25,7 +25,7 @@ class GroceryItem(MethodView):
 
     decorators = [login_required, jsonified]
 
-    @schema(validators.GroceryItem())
+    @schema(GroceryItemValidator())
     def put(self, item_id):
         data = g.request_data
         data['id'] = item_id

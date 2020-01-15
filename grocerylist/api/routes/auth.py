@@ -4,9 +4,9 @@ from werkzeug.exceptions import NotFound
 from grocerylist.api.decorators import jsonified, schema
 from grocerylist.util import jws
 from grocerylist.services.user import UserService
-from grocerylist.api import validators
+from grocerylist.validators.user import UserCreds
 
-@schema(validators.UserCreds())
+@schema(UserCreds())
 @jsonified
 def login():
     data = g.request_data
@@ -20,7 +20,7 @@ def login():
     token = jws.dumps({'id': user.id})
     return dict(token=token.decode())
 
-@schema(validators.UserCreds())
+@schema(UserCreds())
 def register():
     data = g.request_data
     email = data['email']
